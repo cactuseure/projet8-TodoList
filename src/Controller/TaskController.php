@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TaskController extends AbstractController
 {
-    #[Route('/task', name: 'app_task')]
+    #[Route('/tasks', name: 'task_list')]
     public function index(): Response
     {
         return $this->render('task/index.html.twig', [
