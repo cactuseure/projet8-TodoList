@@ -1,9 +1,8 @@
 {% extends 'base.html.twig' %}
 
-
-{% block title %}
-
-{% endblock %}
+{% block title %}Listes des utilisateurs{% endblock %}
+{% block body_class %}page{% endblock %}
+{% block body_id %}{% endblock %}
 
 {% block body %}
     {% if users|length == 0 %}
@@ -11,29 +10,32 @@
             Il n'y a pas encore d'utilisateur enregistré. <a href="{{ path('user_create') }}" class="btn btn-warning pull-right">Créer un utilisateur</a>
         </div>
     {% else %}
-        <div class="row">
+        <section class="container">
+            <div class="ajouter-btn"><a href="{{ path('user_create') }}">Ajouter</a></div>
+
+            <h1>Listes des utilisateurs</h1>
             <table class="table">
                 <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Nom d'utilisateur</th>
-                    <th>Adresse d'utilisateur</th>
-                    <th>Actions</th>
-                </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom d'utilisateur</th>
+                        <th>Adresse d'utilisateur</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for user in users %}
-                    <tr>
-                        <th scope="row">{{ loop.index }}</th>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>
-                            <a href="{{ path('user_edit', {'id' : user.id}) }}" class="btn btn-success btn-sm">Edit</a>
-                        </td>
-                    </tr>
-                {% endfor %}
+                    {% for user in users %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <a href="{{ path('user_edit', {'id' : user.id}) }}">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-        </div>
+        </section>
     {% endif %}
 {% endblock %}

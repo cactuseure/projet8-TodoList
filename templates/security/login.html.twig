@@ -1,23 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-
-{% endblock %}
+{% block title %}Connexion{% endblock %}
+{% block body_class %}page{% endblock %}
+{% block body_id %}login{% endblock %}
 
 {% block body %}
-    {% if error %}
-        <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <section class="container">
+        <h1>Connexion</h1>
 
-    <form action="{{ path('login_check') }}" method="post">
-        <label for="username">Nom d'utilisateur :</label>
-        <input type="text" id="username" name="_username" value="{{ last_username }}" />
+        <form action="{{ path('login_check') }}" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="username">Nom d'utilisateur :</label>
+                <input class="form-control" type="text" id="username" name="_username" value="{{ last_username }}" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Mot de passe :</label>
+                <input class="form-control" type="password" id="password" name="_password" />
+            </div>
 
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="_password" />
+            {% if error %}
+                <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-        <button class="btn btn-success" type="submit">Se connecter</button>
-    </form>
+            <button class="btn" type="submit">Se connecter</button>
+        </form>
+    </section>
+
+
+
 {% endblock %}
 
 
