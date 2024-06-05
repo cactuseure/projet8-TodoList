@@ -6,10 +6,15 @@ use App\Entity\Task;
 use App\Form\Type\TaskType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TaskController extends AbstractController
 {
@@ -18,6 +23,25 @@ class TaskController extends AbstractController
     {
         return $this->render('task/list.html.twig', [
             'tasks' => $entityManager->getRepository(Task::class)->findAll(),
+            'currentFilter' => 'all'
+        ]);
+    }
+
+    #[Route('/tasks/pending', name: 'task_pending')]
+    public function pendingTasks(EntityManagerInterface $entityManager): Response
+    {
+        return $this->render('task/list.html.twig', [
+            'tasks' => $entityManager->getRepository(Task::class)->findBy(['isDone' => false]),
+            'currentFilter' => 'pending'
+        ]);
+    }
+
+    #[Route('/tasks/completed', name: 'task_completed')]
+    public function completedTasks(EntityManagerInterface $entityManager): Response
+    {
+        return $this->render('task/list.html.twig', [
+            'tasks' => $entityManager->getRepository(Task::class)->findBy(['isDone' => true]),
+            'currentFilter' => 'completed'
         ]);
     }
 
@@ -43,6 +67,7 @@ class TaskController extends AbstractController
 
 
     #[Route(path: '/tasks/{id}/edit', name: 'task_edit')]
+    #[IsGranted('edit', 'task','Vous ne pouvez pas éditer cette tâche.')]
     public function editAction(Task $task, Request $request,EntityManagerInterface $entityManager): RedirectResponse|Response
     {
         $form = $this->createForm(TaskType::class, $task);
@@ -64,31 +89,42 @@ class TaskController extends AbstractController
     }
 
 
-    #[Route(path: '/tasks/{id}/toggle', name: 'task_toggle')]
-    public function toggleTaskAction(Task $task,EntityManagerInterface $entityManager): RedirectResponse
+    #[Route(path: '/tasks/{id}/toggle', name: 'task_toggle', methods: ['POST'])]
+    public function toggleTaskAction(Task $task, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, Request $request): JsonResponse
     {
+        $submittedToken = $request->headers->get('X-CSRF-Token');
+
+        if (!$csrfTokenManager->isTokenValid(new CsrfToken('toggle_task', $submittedToken))) {
+            return new JsonResponse(['error' => 'Invalid CSRF token.'], 403);
+        }
+
         $task->setDone(!$task->isDone());
         $entityManager->flush();
 
         if ($task->isDone()) {
             $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
-        }else{
-            $this->addFlash('notice', sprintf('La tâche %s a bien été rajouter à la liste des tâches', $task->getTitle()));
-
+        } else {
+            $this->addFlash('notice', sprintf('La tâche %s a bien été rajoutée à la liste des tâches.', $task->getTitle()));
         }
 
-
-        return $this->redirectToRoute('task_list');
+        return new JsonResponse(['success' => true]);
     }
 
     #[Route(path: '/tasks/{id}/delete', name: 'task_delete')]
-    public function deleteTaskAction(Task $task,EntityManagerInterface $entityManager): RedirectResponse
+    #[IsGranted('delete', 'task','Vous ne pouvez pas supprimer cette tâche.')]
+    public function deleteTaskAction(Task $task, EntityManagerInterface $entityManager): RedirectResponse
     {
-        $entityManager->remove($task);
-        $entityManager->flush();
+        try {
+            $entityManager->remove($task);
+            $entityManager->flush();
 
-        $this->addFlash('success', 'La tâche a bien été supprimée.');
+            $this->addFlash('success', 'La tâche a bien été supprimée.');
 
-        return $this->redirectToRoute('task_list');
+            return $this->redirectToRoute('task_list');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Une erreur est survenue lors de la suppression de la tâche.');
+
+            return $this->redirectToRoute('task_list');
+        }
     }
 }
