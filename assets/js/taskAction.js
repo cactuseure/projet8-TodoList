@@ -1,74 +1,45 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const taskItems = document.querySelectorAll('.task-list li');
-    taskItems.forEach(taskItem => {
-        const editButton = taskItem.querySelector('.edit-button');
-        const deleteButton = taskItem.querySelector('.delete-button');
-        const checkbox = taskItem.querySelector('.task-checkbox');
-
-        editButton.addEventListener('click', async () => {
-            const taskId = taskItem.dataset.taskId;
-            try {
-                const response = await fetch(`/tasks/${taskId}/edit`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                if (response.ok) {
-                    window.location.href = `/tasks/${taskId}/edit`;
-                } else {
-                    console.error('Erreur lors de la requête.');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        });
-
-        deleteButton.addEventListener('click', async () => {
-            const taskId = taskItem.dataset.taskId;
-            const isConfirmed = confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');
-            if (!isConfirmed) return;
-
-            try {
-                const response = await fetch(`/tasks/${taskId}/delete`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    console.error('Erreur lors de la requête.');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        });
-
-        checkbox.addEventListener('change', async function() {
-            const taskId = taskItem.dataset.taskId;
-
-            try {
-                const response = await fetch(`/tasks/${taskId}/toggle`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    console.error('Erreur lors de la requête.');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
-        });
-    });
+document.addEventListener('turbo:load', (event) => {
+    initializeTaskList();
 });
 
+function initializeTaskList() {
+    if (!document.querySelector('.task-list')) {
+        return;
+    }
+
+    const csrfToken = document.querySelector('.task-list').getAttribute('data-csrf-token');
+
+    document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const taskId = this.closest('li').getAttribute('data-task-id');
+            toggleTask(taskId, csrfToken);
+        });
+    });
+}
+
+function toggleTask(taskId, csrfToken) {
+    const url = `/tasks/${taskId}/toggle`;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': csrfToken
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                location.reload(); // Recharge la page pour afficher les changements
+            } else {
+                console.error('Erreur lors de la mise à jour de la tâche.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur réseau :', error);
+        });
+}
+
+// Gestion de la position de défilement
 window.addEventListener('beforeunload', function() {
     localStorage.setItem('scrollPosition', window.scrollY);
 });
@@ -76,6 +47,6 @@ window.addEventListener('beforeunload', function() {
 window.addEventListener('load', function() {
     if (localStorage.getItem('scrollPosition') !== null) {
         window.scrollTo(0, localStorage.getItem('scrollPosition'));
-        localStorage.removeItem('scrollPosition'); // Supprimez après l'utilisation pour éviter de restaurer une ancienne position
+        localStorage.removeItem('scrollPosition');
     }
 });

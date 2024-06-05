@@ -23,12 +23,18 @@
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav  mb-2 mb-lg-0 w-100">
 
+                                {% if is_granted('ROLE_ADMIN') %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('user_list') }}">Utilisateurs</a>
                                 </li>
+                                {% endif %}
 
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('task_list') }}">Tâches</a>
+                                </li>
+
+                                <li class="nav-item d-none d-md-block d-lg-none">
+                                    <a class="nav-link logout" href="{{ path('logout') }}">Déconnexion</a>
                                 </li>
 
                                 {% if app.user %}
@@ -66,28 +72,44 @@
 
         <main>
             {% block body %}{% endblock %}
+
+
+            <aside class="notifications">
+                {% for flash_message in app.session.flashBag.get('success') %}
+                    <div class="alert alert-success" role="alert">
+                        <strong>Superbe !</strong> {{ flash_message }}
+                        <div class="close-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% for flash_message in app.session.flashBag.get('error') %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Oops !</strong> {{ flash_message }}
+                        <div class="close-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% for flash_message in app.session.flashBag.get('notice') %}
+                    <div class="alert alert-info" role="alert">
+                        <strong>Info !</strong> {{ flash_message }}
+                        <div class="close-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                    </div>
+                {% endfor %}
+            </aside>
         </main>
 
-
-        <aside class="notifications">
-            {% for flash_message in app.session.flashBag.get('success') %}
-                <div class="alert alert-success" role="alert">
-                    <strong>Superbe !</strong> {{ flash_message }}
-                </div>
-            {% endfor %}
-
-            {% for flash_message in app.session.flashBag.get('error') %}
-                <div class="alert alert-danger" role="alert">
-                    <strong>Oops !</strong> {{ flash_message }}
-                </div>
-            {% endfor %}
-
-            {% for flash_message in app.session.flashBag.get('notice') %}
-                <div class="alert alert-info" role="alert">
-                    <strong>Info !</strong> {{ flash_message }}
-                </div>
-            {% endfor %}
-        </aside>
 
         <footer>
             <p>Copyright &copy; OpenClassrooms</p>

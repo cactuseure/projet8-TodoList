@@ -152,6 +152,11 @@ ul.task-list {
         display: flex;
         flex-wrap: nowrap;
         align-items: flex-start;
+        gap: 10px;
+
+        a{
+            color: #000;
+        }
     }
 }
 
@@ -380,5 +385,31 @@ header {
     button.btn.dropdown-toggle{
         font-size: inherit;
         padding: inherit;
+    }
+}
+
+
+.notifications {
+    position: fixed;
+    bottom: 0;
+    left: 20px;
+    padding-right: 10px;
+
+    .alert {
+        position: relative;
+        padding: 15px 40px 15px 20px;
+    }
+
+    svg {
+        width: 25px;
+        height: 25px;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
     }
 }
