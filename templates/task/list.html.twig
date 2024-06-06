@@ -1,39 +1,57 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    <img class="slide-image" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">
-{% endblock %}
+{% block title %}Listes des tâches{% endblock %}
+{% block body_class %}page{% endblock %}
+{% block body_id %}task-list{% endblock %}
+
+
 
 {% block body %}
-    <a href="{{ path('task_create') }}" class="btn btn-info pull-right">Créer une tâche</a>
-    <div class="row">
-        {% for task in tasks %}
-            <div class="col-sm-4 col-lg-4 col-md-4">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h4 class="pull-right">
-                            {% if task.isDone %}<span class="glyphicon glyphicon-ok"></span>{% else %}<span class="glyphicon glyphicon-remove"></span>{% endif %}
-                        </h4>
-                        <h4><a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a></h4>
-                        <p>{{ task.content }}</p>
+    <section class="container">
+        <div class="ajouter-btn"><a href="{{ path('task_create') }}">Ajouter</a></div>
+
+        <h1>Listes des tâches</h1>
+
+        <div class="link">
+            {% if currentFilter != 'all' %}
+                <a class="btn" href="{{ path('task_list') }}">Toutes les tâches</a>
+            {% endif %}
+            {% if currentFilter != 'pending' %}
+                <a class="btn" href="{{ path('task_pending') }}">Tâches à faire</a>
+            {% endif %}
+            {% if currentFilter != 'completed' %}
+                <a class="btn" href="{{ path('task_completed') }}">Tâches terminées</a>
+            {% endif %}
+        </div>
+
+
+        <ul class="task-list" data-csrf-token="{{ csrf_token('toggle_task') }}">
+            {% for task in tasks %}
+                <li data-task-id="{{ task.id }}">
+                    <label for="task{{ task.id }}" class="task-title {% if task.isDone %}done{% endif %}">
+                        <input type="checkbox" id="task{{ task.id }}" class="task-checkbox" {% if task.isDone %}checked{% endif %}>
+                        {{ task.title }}
+                        <span class="task-descritpion">
+                            {{ task.content }}
+                        </span>
+                    </label>
+                    <div class="task-actions">
+                        <a href="{{ path('task_edit',{'id' : task.id}) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z"></path>
+                                <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z"></path>
+                            </svg>
+                        </a>
+                        <a href="{{ path('task_delete',{'id' : task.id}) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
                     </div>
-                    <div>
-                        <form action="{{ path('task_toggle', {'id' : task.id }) }}">
-                            <button class="btn btn-success btn-sm pull-right">
-                                {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
-                            </button>
-                        </form>
-                        <form action="{{ path('task_delete', {'id' : task.id }) }}">
-                            <button class="btn btn-danger btn-sm pull-right">Supprimer</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                Il n'y a pas encore de tâche enregistrée. <a href="{{ path('task_create') }}" class="btn btn-warning pull-right">Créer une tâche</a>
-            </div>
-        {% endfor %}
-    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    </section>
 {% endblock %}
 

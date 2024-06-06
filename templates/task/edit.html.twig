@@ -1,12 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    <div class="row">
-        {{ form_start(form, {'action' : path('task_edit', { 'id' : task.id })}) }}
-        {{ form_widget(form) }}
+{% block body_id %}task{% endblock %}
+{% block body_class %}edit-form page{% endblock %}
+{% block title %}Modification de {{ task.title }}{% endblock %}
 
-        <button type="submit" class="btn btn-success pull-right">Modifier</button>
+{% block body %}
+    <div class="retour-btn"><a href="{{ path('task_list') }}">Retour</a></div>
+
+    <section class="container">
+        <h1>Modification de '{{ task.title }}'</h1>
+
+        {{ form_start(form, {'action' : path('task_edit', { 'id' : task.id })}) }}
+            {{ form_widget(form) }}
+
+            <button type="submit" class="btn btn-success pull-right">Modifier</button>
         {{ form_end(form) }}
-    </div>
+
+    </section>
 {% endblock %}
+
+
+
 

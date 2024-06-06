@@ -26,3 +26,7 @@ services:
     App\EventListener\TaskListener:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
+
+    App\Security\TaskVoter:
+        tags:
+            - { name: security.voter }

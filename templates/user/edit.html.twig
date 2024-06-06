@@ -1,16 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-Modification d'User
-{% endblock %}
+{% block title %}Modification de {{ user.username }}{% endblock %}
+
+{% block body_class %}page{% endblock %}
+{% block body_id %}{% endblock %}
+
 
 {% block body %}
-    <div class="row">
+    <div class="retour-btn"><a href="{{ path('user_list') }}">Retour</a></div>
+    <section class="container">
+        <h1>Modification de {{ user.username }}</h1>
         {{ form_start(form, {'action' : path('user_edit', {'id' : user.id})}) }}
         {{ form_widget(form) }}
 
         <button type="submit" class="btn btn-success pull-right">Modifier</button>
         {{ form_end(form) }}
-    </div>
+
+        <div><a href="{{ path('user_change_password', {'id': user.id })}}">Modifier son mot de passe</a></div>
+    </section>
 {% endblock %}
 
