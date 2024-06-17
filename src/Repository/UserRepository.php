@@ -38,6 +38,17 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function findOneByNot($field, $value)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where($qb->expr()->not($qb->expr()->eq('a.'.$field, '?1')));
+        $qb->setParameter(1, $value);
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

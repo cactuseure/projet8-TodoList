@@ -10,13 +10,13 @@
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
-/phpunit.xml
+/phpunit.dist.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
-/phpunit.xml
+/phpunit.dist.xml
 ###< symfony/phpunit-bridge ###
 
 ###> symfony/asset-mapper ###

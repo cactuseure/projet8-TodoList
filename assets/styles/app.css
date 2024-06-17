@@ -54,7 +54,6 @@ ul.task-list {
         text-decoration: none !important;
         display: flex;
         line-height: 17px;
-        margin-left: 50px;
         margin-top: 5px;
         width: 100%;
         font-weight: 300;
@@ -79,6 +78,9 @@ ul.task-list {
         transform: translateY(-0.075em);
 
         display: flex;
+
+        position: absolute;
+        left: 0;
 
         &:before{
             content: "";
@@ -130,6 +132,9 @@ ul.task-list {
         font-weight: 500;
         font-style: normal;
         font-size: 2em;
+
+        padding-left: 50px;
+        position: relative;
 
         &.done {
             text-decoration: line-through;
@@ -303,6 +308,12 @@ main{
         gap: 30px;
         margin-top: 120px;
         margin-bottom: 70px;
+        @media screen and (max-width: 767px){
+            flex-direction: column;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
         >a{
             display: flex;
             align-items: center;
@@ -411,5 +422,15 @@ header {
         position: absolute;
         top: 5px;
         right: 5px;
+    }
+}
+
+
+body#list_user {
+    table.table.users {
+        svg {
+            width: 30px;
+            color: #000;
+        }
     }
 }

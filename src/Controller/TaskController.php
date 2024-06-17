@@ -18,48 +18,57 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TaskController extends AbstractController
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager
+    )
+    {
+
+    }
+
     #[Route('/tasks', name: 'task_list')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(): Response
     {
         return $this->render('task/list.html.twig', [
-            'tasks' => $entityManager->getRepository(Task::class)->findAll(),
+            'tasks' => $this->entityManager->getRepository(Task::class)->findAll(),
             'currentFilter' => 'all'
         ]);
     }
 
     #[Route('/tasks/pending', name: 'task_pending')]
-    public function pendingTasks(EntityManagerInterface $entityManager): Response
+    public function pendingTasks(): Response
     {
         return $this->render('task/list.html.twig', [
-            'tasks' => $entityManager->getRepository(Task::class)->findBy(['isDone' => false]),
+            'tasks' => $this->entityManager->getRepository(Task::class)->findBy(['isDone' => false]),
             'currentFilter' => 'pending'
         ]);
     }
 
     #[Route('/tasks/completed', name: 'task_completed')]
-    public function completedTasks(EntityManagerInterface $entityManager): Response
+    public function completedTasks(): Response
     {
         return $this->render('task/list.html.twig', [
-            'tasks' => $entityManager->getRepository(Task::class)->findBy(['isDone' => true]),
+            'tasks' => $this->entityManager->getRepository(Task::class)->findBy(['isDone' => true]),
             'currentFilter' => 'completed'
         ]);
     }
 
 
     #[Route(path: '/tasks/create', name: 'task_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager): Response
+    public function create(Request $request): Response
     {
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $currentUser = $this->getUser();
+            $task->setOwner($currentUser);
 
-            $entityManager->persist($task);
-            $entityManager->flush();
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
 
-            return $this->redirectToRoute('app_default');
+            return $this->redirectToRoute('task_list');
         }
 
         return $this->render('task/create.html.twig', ['form' => $form->createView()]);
@@ -68,14 +77,14 @@ class TaskController extends AbstractController
 
     #[Route(path: '/tasks/{id}/edit', name: 'task_edit')]
     #[IsGranted('edit', 'task','Vous ne pouvez pas éditer cette tâche.')]
-    public function editAction(Task $task, Request $request,EntityManagerInterface $entityManager): RedirectResponse|Response
+    public function editAction(Task $task, Request $request): RedirectResponse|Response
     {
         $form = $this->createForm(TaskType::class, $task);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La tâche a bien été modifiée.');
 
@@ -90,7 +99,7 @@ class TaskController extends AbstractController
 
 
     #[Route(path: '/tasks/{id}/toggle', name: 'task_toggle', methods: ['POST'])]
-    public function toggleTaskAction(Task $task, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, Request $request): JsonResponse
+    public function toggleTaskAction(Task $task, CsrfTokenManagerInterface $csrfTokenManager, Request $request): JsonResponse
     {
         $submittedToken = $request->headers->get('X-CSRF-Token');
 
@@ -99,7 +108,7 @@ class TaskController extends AbstractController
         }
 
         $task->setDone(!$task->isDone());
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         if ($task->isDone()) {
             $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
@@ -112,11 +121,11 @@ class TaskController extends AbstractController
 
     #[Route(path: '/tasks/{id}/delete', name: 'task_delete')]
     #[IsGranted('delete', 'task','Vous ne pouvez pas supprimer cette tâche.')]
-    public function deleteTaskAction(Task $task, EntityManagerInterface $entityManager): RedirectResponse
+    public function deleteTaskAction(Task $task): RedirectResponse
     {
         try {
-            $entityManager->remove($task);
-            $entityManager->flush();
+            $this->entityManager->remove($task);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La tâche a bien été supprimée.');
 

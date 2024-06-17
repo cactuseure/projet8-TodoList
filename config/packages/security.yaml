@@ -16,13 +16,10 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            pattern: ^/
             form_login:
                 login_path: login
-                check_path: login_check
-                always_use_default_target_path: true
-                default_target_path: /
-            logout: ~
+                check_path: login
+                default_target_path: app_default
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall

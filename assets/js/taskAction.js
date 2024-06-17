@@ -1,5 +1,6 @@
 document.addEventListener('turbo:load', (event) => {
     initializeTaskList();
+    initializeDeleteModal();
 });
 
 function initializeTaskList() {
@@ -37,6 +38,21 @@ function toggleTask(taskId, csrfToken) {
         .catch(error => {
             console.error('Erreur réseau :', error);
         });
+}
+
+function initializeDeleteModal() {
+    const deleteModal = document.getElementById('deleteModal');
+    if (!deleteModal) {
+        return;
+    }
+
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Bouton qui a déclenché la modal
+        const taskId = button.getAttribute('data-task-id'); // Récupère l'ID de la tâche
+
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteBtn.href = `/tasks/${taskId}/delete`;
+    });
 }
 
 // Gestion de la position de défilement

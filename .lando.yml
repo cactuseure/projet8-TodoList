@@ -1,0 +1,12 @@
+name: to-do
+recipe: lamp
+config:
+  webroot: public
+  php: '8.2'
+  xdebug: 'develop,debug'
+
+services:
+  appserver:
+    build_as_root:
+      - wget https://get.symfony.com/cli/installer -O - | bash
+      - mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
