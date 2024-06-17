@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -10,18 +11,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/security', name: 'app_security')]
-    public function index(): Response
+    #[Route('/login', name: 'login')]
+    public function loginAction(AuthenticationUtils $authenticationUtils): Response
     {
-        return $this->render('security/index.html.twig', [
-            'controller_name' => 'SecurityController',
-        ]);
-    }
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_default');
+        }
 
-
-    #[Route(path: '/login', name: 'login')]
-    public function loginAction(AuthenticationUtils $authenticationUtils)
-    {
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
@@ -32,15 +28,11 @@ class SecurityController extends AbstractController
     }
 
 
-    #[Route(path: '/login_check', name: 'login_check')]
-    public function loginCheck()
+    #[Route('/logout', name: 'logout')]
+    public function logoutCheck(Security $security): Response
     {
-        // This code is never executed.
-    }
+        $security->logout(false);
 
-    #[Route(path: '/logout', name: 'logout')]
-    public function logoutCheck()
-    {
-        // This code is never executed.
+        return $this->redirectToRoute('login');
     }
 }
